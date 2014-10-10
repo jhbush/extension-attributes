@@ -7,7 +7,7 @@ a=`dscl . -read /Groups/admin GroupMembership`
 admins=($a)
 
 # List the users I don't want to report on. Separate by space to add more.
-ignore=(GroupMembership: administrator _viamanagement)
+ignore=(GroupMembership: your_administrator)
 
 # Loop through the ignore array and trim them from the admin array
 for i in "${ignore[@]}"; do admins=(${admins[@]//*$i*})
