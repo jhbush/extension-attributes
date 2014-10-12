@@ -1,6 +1,8 @@
 #!/bin/sh
 
-# Checks the version of Juniper Network Connect
+# Detects the version of Juniper Network Connect installed
+
+# Jason Bush 2014
 
 if [ -d /Applications/Network\ Connect.app ] ; then
 	
