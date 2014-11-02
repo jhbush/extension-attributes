@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# Rich Trouton
+
 CORESTORAGESTATUS="/private/tmp/corestorage.txt"
 ENCRYPTSTATUS="/private/tmp/encrypt_status.txt"
 ENCRYPTDIRECTION="/private/tmp/encrypt_direction.txt"
