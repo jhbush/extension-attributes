@@ -1,6 +1,11 @@
 #!/bin/sh
-OS=`/usr/bin/sw_vers -productVersion | /usr/bin/colrm 5`
-if [[ "$OS" < "10.5" ]]; then
+
+# Jason Bush 2014
+
+# Displays the current network time server
+
+OS=$(sw_vers -productVersion | awk -F. '{print $2}')
+if [[ ${OS} -lt 6 ]]; then
 if [ -f /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Support/systemsetup ];then		
 	echo "<result>`/System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Support/systemsetup -getnetworktimeserver | awk '{print $4}'`</result>"
 else
