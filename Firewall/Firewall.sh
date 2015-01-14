@@ -1,6 +1,9 @@
 #!/bin/sh
-OS=`/usr/bin/sw_vers -productVersion | /usr/bin/colrm 5`
-if [[ "$OS" < "10.5" ]]; then		
+
+# Displays the current status of the built in firewall
+
+OS=$(sw_vers -productVersion | awk -F. '{print $2}')
+if [[ ${OS} -lt 6 ]]; then		
 result=`/usr/bin/defaults read /Library/Preferences/com.apple.sharing.firewall state`
 if [ "$result" == "YES" ]; then
 	echo "<result>On</result>"
