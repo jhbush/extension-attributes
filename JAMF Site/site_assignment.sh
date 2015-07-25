@@ -1,6 +1,6 @@
 #!/bin/sh
 
-apiURL="https://jss.viasat.com:8443/JSSResource/computers/macaddress/"
+apiURL="https://jss.domain.com:8443/JSSResource/computers/macaddress/"
 apiUser="username"
 apiPass="password"
 MacAdd=$( /usr/sbin/networksetup -getmacaddress en0 | /usr/bin/awk '{ print $3 }' | /usr/bin/sed 's/:/./g' )
