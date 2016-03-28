@@ -6,7 +6,7 @@
 NETACCLIST=`/usr/bin/dscl . list /Users OriginalNodeName | awk '{print $1}' 2>/dev/null`
 
 if [ "$NETACCLIST" == "" ]; then
-	
+
         echo "<result>No Network Accounts</result>"
 
 else

@@ -1,10 +1,10 @@
 #!/bin/sh
 
-STARTECH=$(networksetup -listallhardwareports | awk '/Hardware Port: LAN7500/{getline; getline; print $NF}')
+# Determines if the StarTech LAN7500 kernel extension is installed.
 
-if [[ "$STARTECH" == "" ]]; then
+if [[ -e /System/Library/Extensions/LAN7500.kext ]]; then
 
-    echo "<result>Not Installed</result>"
+    echo "<result>Installed</result>"
 else
-    echo "<result>$STARTECH</result>"
+    echo "<result>Not Installed</result>"
 fi
