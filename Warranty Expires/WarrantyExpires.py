@@ -1,7 +1,13 @@
 #!/usr/bin/python
 import os.path, subprocess, datetime, dateutil.parser, time, sys
 
+
 def apple_year_offset(dateobj, years=0):
+	"""Return the same date shifted by a number of calendar years.
+
+	The script uses this helper when converting a serialized Apple week code into
+	an approximate warranty expiration date.
+	"""
 	# Convert to a maleable format
 	mod_time = dateobj.timetuple()
 	# Offset year by number of years
@@ -9,7 +15,14 @@ def apple_year_offset(dateobj, years=0):
 	# Convert back to a datetime obj
 	return datetime.datetime.fromtimestamp(int(time.mktime(mod_time)))
 
+
 def estimated_warranty_date_from_serial(serial):
+	"""Estimate the expiration date from a Mac serial number.
+
+	The algorithm follows the legacy Apple serial-number scheme used for many
+	Intel-era Macs. It converts the encoded manufacturing week into a calendar
+	date and then adds the standard three-year warranty window.
+	"""
 	# http://www.macrumors.com/2010/04/16/apple-tweaks-serial-number-format-with-new-macbook-pro/
 	est_date = u''
 	if 10 < len(serial) < 13:
@@ -38,18 +51,23 @@ def estimated_warranty_date_from_serial(serial):
 				year_time += week_dif
 	return apple_year_offset(year_time, 3).strftime('%Y-%m-%d')
 
+
 def warranty_is_expired(date_string):
+	"""Return True when the provided warranty date is earlier than today."""
 	ExpirationDate=dateutil.parser.parse(date_string).date()
 	TodaysDate=datetime.date.today()
 	return TodaysDate > ExpirationDate
 
+
 def main():
+	"""Populate the warranty plist if needed and print the Jamf result XML."""
 	if os.path.exists('/Library/Preferences/com.apple.warranty.plist'):
 		# get plist data
 		WarrantyDate=subprocess.check_output(['/usr/bin/defaults', 'read', '/Library/Preferences/com.apple.warranty', 'WarrantyDate']).rstrip()
 		WarrantyStatus=subprocess.check_output(['/usr/bin/defaults', 'read', '/Library/Preferences/com.apple.warranty', 'WarrantyStatus']).rstrip()
 		
-		# if warranty is listed as active but date is expired, update plist entry
+		# If the stored status says the warranty is active but the date has already
+		# expired, update the local plist so Jamf reflects the true state.
 		if (WarrantyStatus == "Active") and (warranty_is_expired(WarrantyDate)): 
 			WarrantyStatus="Inactive"
 			result_code = subprocess.call(['/usr/bin/defaults', 'write', '/Library/Preferences/com.apple.warranty', 'WarrantyStatus', WarrantyStatus])
