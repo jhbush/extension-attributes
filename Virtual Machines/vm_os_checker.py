@@ -3,24 +3,32 @@
 #Displays the OS of discovered virtual machines
 
 import subprocess
-#Search for VMs 
+# Search for VM metadata files to inventory the guest OSes installed on the host.
+# The data is inspected once at import time so the Jamf extension attribute can
+# return a concise summary without re-scanning the filesystem repeatedly.
 vmware_files = subprocess.check_output(["find","/Users","-name","*.vmx"])
 vbox_files = subprocess.check_output(["find","/Users","-name","*.vbox"])
 parallels_files = subprocess.check_output(["find","/Users","-name","VmInfo.pvi"])
 
-#Create list with the found VMs
+# Create list with the found VMs.
 vmware_files = vmware_files.split("\n")
 vmware_files = filter(None, vmware_files)
 vbox_files = vbox_files.split("\n")
 vbox_files = filter(None, vbox_files)
 parallels_files = parallels_files.split("\n")
 parallels_files = filter(None, parallels_files)
-#print vmware_files
-#print vbox_files
-#print parallels_files
+# print vmware_files
+# print vbox_files
+# print parallels_files
 results = []
 
-def what_vm(): #Check which VMs are present
+
+def what_vm():
+    """Return the combined virtualization stack detected on the machine.
+
+    This value is used by the extension attribute to decide which VM-specific
+    output block should be rendered for Jamf inventory.
+    """
     if vmware_files == [] and vbox_files == [] and parallels_files == []:
         return "No VM Found"
     elif vmware_files == [] and vbox_files == [] and parallels_files != []:
@@ -40,7 +48,13 @@ def what_vm(): #Check which VMs are present
     else:
         return "Error..."
 
-def found_vmware(): #Returns found Vms OS
+def found_vmware():
+    """Collect guest operating system names from VMware configuration files.
+
+    Each discovered `.vmx` file is parsed for its `guest` property and the OS
+    names are normalized to lowercase before being returned as a newline-delimited
+    string for Jamf reporting.
+    """
     vm_found = []
     vmware_config =[]
     for i in vmware_files:
@@ -57,7 +71,9 @@ def found_vmware(): #Returns found Vms OS
     vm_found = ('\n').join(vm_found)
     return "%s"%vm_found
 
-def found_vbox():  #Returns found Vms OS
+
+def found_vbox():
+    """Read VirtualBox `.vbox` definitions and return the configured OS types."""
     vbox_mod = []
     vbox_os = []
     for i in vbox_files:
@@ -75,7 +91,9 @@ def found_vbox():  #Returns found Vms OS
     vbox_os = ('\n').join(vbox_os)
     return "%s"%vbox_os
 
-def found_para(): #Returns found Vms OS
+
+def found_para():
+    """Extract the guest OS type from Parallels VM metadata files."""
     para_res = []
     cleanup =[]
     para_mod = []
@@ -89,6 +107,8 @@ def found_para(): #Returns found Vms OS
         gt = gt[1:2:]
         cleanup.append(gt)
     for m in cleanup:
+        # Parallels stores the value as a CSV-like token; strip the trailing
+        # punctuation before emitting the result string.
         t = m[0].translate(None,",")
         para_res.append(t)
     para_res = ('\n').join(para_res)
